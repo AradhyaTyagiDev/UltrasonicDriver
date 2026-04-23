@@ -1,0 +1,8 @@
+{
+        "name": "UltrasonicDriver",
+        "version": "1.0.0",
+        "description": "Cross-platform ultrasonic driver (ESP-IDF, Arduino, STM32-ready)",
+        "keywords": ["ultrasonic", "esp32", "rmt", "sensor"],
+        "frameworks": ["arduino", "espidf"],
+        "platforms": ["espressif32"]
+}
