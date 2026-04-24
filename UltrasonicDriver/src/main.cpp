@@ -46,13 +46,12 @@ void systemInit()
 
     QueueHandle_t queue = xQueueCreate(32, sizeof(UltrasonicEchoEvent));
 
-    auto driver = createUltrasonicDriver(configs, queue);
-
-    driver->begin();
+    auto ctx = createUltrasonicDriverContext(configs, queue);
+    ctx.driver->begin();
 
     while (true)
     {
-        driver->startReceive(UltrasonicSensorId::FRONT);
+        ctx.driver->startReceive(UltrasonicSensorId::FRONT);
 
         UltrasonicEchoEvent evt;
 

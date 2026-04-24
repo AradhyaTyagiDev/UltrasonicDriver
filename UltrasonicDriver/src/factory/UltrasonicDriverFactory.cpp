@@ -4,7 +4,11 @@
 // ================= DRIVER INCLUDES =================
 
 // 🔥 Order matters: ARDUINO first
-#if defined(ARDUINO)
+#if defined(ULTRASONIC_USE_MOCK)
+
+#include "drivers/mock/UltrasonicMockDriver.h"
+
+#elif defined(ARDUINO)
 
 #include "drivers/arduino/UltrasonicArduinoDriver.h"
 
@@ -12,41 +16,43 @@
 
 #include "drivers/esp_idf/UltrasonicRMTDriver.h"
 
-#elif defined(ULTRASONIC_USE_MOCK)
-
-#include "drivers/mock/UltrasonicMockDriver.h"
-
 #else
 #error "No supported platform for UltrasonicDriver"
 #endif
 
 // ================= FACTORY =================
-
 std::unique_ptr<IUltrasonicDriver> createUltrasonicDriver(
     const std::vector<UltrasonicConfig> &configs,
-#if defined(ESP_PLATFORM)
-    QueueHandle_t queue
-#else
-    void *queue
-#endif
-)
+    QueueHandle_t queue)
 {
-#if defined(ARDUINO)
+#if defined(ULTRASONIC_USE_MOCK)
 
-    // Arduino driver (no RTOS queue needed)
+    return std::make_unique<UltrasonicMockDriver>(configs, queue);
+
+#elif defined(ARDUINO)
+
+    // Arduino driver ignores queue internally
     return std::make_unique<UltrasonicArduinoDriver>(configs);
 
 #elif defined(ESP_PLATFORM)
-
     // ESP-IDF RMT driver
     return std::make_unique<UltrasonicRMTDriver>(configs, queue);
 
-#elif defined(ULTRASONIC_USE_MOCK)
-
-    // Mock driver for testing
-    return std::make_unique<UltrasonicMockDriver>(configs);
-
 #else
-    static_assert(false, "No ultrasonic driver selected");
+#error "No ultrasonic driver selected"
 #endif
+}
+
+UltrasonicDriverContext createUltrasonicDriverContext(
+    const std::vector<UltrasonicConfig> &configs,
+    QueueHandle_t queue)
+{
+    UltrasonicDriverContext ctx;
+
+    ctx.driver = createUltrasonicDriver(configs, queue);
+    ctx.driver->begin();
+
+    ctx.test = ctx.driver->testHook();
+
+    return ctx;
 }

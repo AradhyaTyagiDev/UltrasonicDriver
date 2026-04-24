@@ -91,24 +91,6 @@ void UltrasonicRMTDriver::startReceive(UltrasonicSensorId sensor)
     }
 }
 
-// =============================
-// Restart
-// =============================
-void UltrasonicRMTDriver::restartReceive(UltrasonicSensorId sensor)
-{
-    const size_t idx = toIndex(sensor);
-
-    // 🔒 Fast bounds check
-    if (idx >= configs.size())
-        return;
-
-    // Optional: validate channel (same as startReceive)
-    if (channels[idx] == nullptr)
-        return;
-
-    startReceive(sensor);
-}
-
 // ================================
 // 🔷 DROP STATS
 // ================================
@@ -247,22 +229,4 @@ uint32_t UltrasonicRMTDriver::parseDuration(
 
     return duration; // in µs (since resolution = 1MHz)
 }
-
-// ================================
-// 🔷 TESTS
-// ================================
-#ifdef UNIT_TEST
-// Simulate ISR event (bypass hardware)
-void UltrasonicRMTDriver::simulateReceive(UltrasonicSensorId sensor, uint32_t duration)
-{
-    UltrasonicEchoEvent evt;
-    evt.sensorId = sensor;
-    evt.duration = duration;
-    evt.timestamp = xTaskGetTickCount();
-    evt.timeout = false;
-
-    xQueueSend(echoQueue, &evt, 0);
-}
-#endif
-
 #endif

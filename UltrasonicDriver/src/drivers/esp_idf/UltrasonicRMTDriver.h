@@ -24,16 +24,10 @@ public:
     void begin() override;
     void startReceive(UltrasonicSensorId sensor) override;
 
-    void restartReceive(UltrasonicSensorId sensor);
-
     // Stats
     uint32_t getTotalDrops() const;
     uint32_t getSensorDrops(UltrasonicSensorId sensor) const;
     uint32_t getErrorCount() const;
-
-#ifdef UNIT_TEST
-    void simulateReceive(UltrasonicSensorId sensor, uint32_t duration);
-#endif
 
 private:
     // ================= CONFIG =================
