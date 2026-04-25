@@ -10,7 +10,7 @@
 
 #elif defined(ARDUINO)
 
-#include "drivers/arduino/UltrasonicArduinoDriver.h"
+#include "drivers/arduino/UltrasonicArduinoISRDriver.h"
 
 #elif defined(ESP_PLATFORM)
 
@@ -27,16 +27,19 @@ std::unique_ptr<IUltrasonicDriver> createUltrasonicDriver(
 {
 #if defined(ULTRASONIC_USE_MOCK)
 
-    return std::make_unique<UltrasonicMockDriver>(configs, queue);
+    return std::unique_ptr<IUltrasonicDriver>(
+        new UltrasonicMockDriver(configs, queue));
 
 #elif defined(ARDUINO)
 
-    // Arduino driver ignores queue internally
-    return std::make_unique<UltrasonicArduinoDriver>(configs);
+    // Arduino framework driver keeps the same queue/event contract as RMT.
+    return std::unique_ptr<IUltrasonicDriver>(
+        new UltrasonicArduinoISRDriver(configs, queue));
 
 #elif defined(ESP_PLATFORM)
     // ESP-IDF RMT driver
-    return std::make_unique<UltrasonicRMTDriver>(configs, queue);
+    return std::unique_ptr<IUltrasonicDriver>(
+        new UltrasonicRMTDriver(configs, queue));
 
 #else
 #error "No ultrasonic driver selected"

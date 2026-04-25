@@ -1,7 +1,5 @@
 #include "UltrasonicRMTDriver.h"
 
-#if defined(ESP_PLATFORM) && !defined(ARDUINO)
-
 #include <assert.h>
 #include "esp_err.h"
 #include "UltrasonicUtils.h"
@@ -229,4 +227,3 @@ uint32_t UltrasonicRMTDriver::parseDuration(
 
     return duration; // in µs (since resolution = 1MHz)
 }
-#endif

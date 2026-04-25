@@ -1,7 +1,5 @@
 #pragma once
 
-#if defined(ESP_PLATFORM) && !defined(ARDUINO)
-
 #include <vector>
 #include <stdint.h>
 
@@ -60,5 +58,3 @@ private:
     // ⚠️ Declaration only (definition in .cpp)
     static const rmt_rx_event_callbacks_t rx_callbacks;
 };
-
-#endif // ESP_PLATFORM
