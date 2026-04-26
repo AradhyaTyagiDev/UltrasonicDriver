@@ -1,5 +1,6 @@
 #include "UltrasonicDriverFactory.h"
 
+#include <memory>
 #include <utility>
 
 // ================= PLATFORM RECEIVERS =================
@@ -44,7 +45,7 @@ static std::unique_ptr<IUltrasonicDriver> createDriver(
 
 #elif defined(ULTRASONIC_DRIVER_ESP32_ARDUINO_ISR)
 
-    return std::make_unique<UltrasonicArduinoISRDriver>(configs, receiver);
+    return std::unique_ptr<IUltrasonicDriver>(new UltrasonicArduinoISRDriver(configs, receiver));
 
 #elif defined(ULTRASONIC_DRIVER_ESP_IDF_RMT)
 
@@ -78,8 +79,7 @@ UltrasonicDriverContext createUltrasonicDriverContext(
         // For now: fail-fast
         abort();
     }
-
-    ctx.receiver = std::make_unique<FreeRTOSEventReceiver>(queue);
+    ctx.receiver = std::unique_ptr<IUltrasonicEventReceiver>(new FreeRTOSEventReceiver(queue));
 
 #elif defined(ULTRASONIC_DRIVER_ARDUINO)
 

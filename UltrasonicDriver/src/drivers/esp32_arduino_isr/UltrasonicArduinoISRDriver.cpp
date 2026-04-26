@@ -1,7 +1,6 @@
 #include "UltrasonicArduinoISRDriver.h"
 
 #include <assert.h>
-
 #include "UltrasonicUtils.h"
 
 UltrasonicArduinoISRDriver::UltrasonicArduinoISRDriver(
@@ -16,6 +15,10 @@ UltrasonicArduinoISRDriver::UltrasonicArduinoISRDriver(
     dropCounter.resize(configs.size(), 0);
 }
 
+// ============================================================
+// INIT
+// ============================================================
+
 void UltrasonicArduinoISRDriver::begin()
 {
     for (size_t i = 0; i < configs.size(); ++i)
@@ -28,6 +31,10 @@ void UltrasonicArduinoISRDriver::begin()
         attachEchoInterrupt(i);
     }
 }
+
+// ============================================================
+// START RECEIVE
+// ============================================================
 
 void UltrasonicArduinoISRDriver::startReceive(UltrasonicSensorId sensor)
 {
@@ -45,6 +52,10 @@ void UltrasonicArduinoISRDriver::startReceive(UltrasonicSensorId sensor)
     states[idx].armed = true;
     interrupts();
 }
+
+// ============================================================
+// STATS
+// ============================================================
 
 uint32_t UltrasonicArduinoISRDriver::getTotalDrops() const
 {
@@ -66,6 +77,10 @@ uint32_t UltrasonicArduinoISRDriver::getErrorCount() const
     return __atomic_load_n(&errorCounter, __ATOMIC_RELAXED);
 }
 
+// ============================================================
+// ISR SETUP
+// ============================================================
+
 void UltrasonicArduinoISRDriver::attachEchoInterrupt(size_t idx)
 {
     attachInterruptArg(configs[idx].echoPin,
@@ -74,6 +89,10 @@ void UltrasonicArduinoISRDriver::attachEchoInterrupt(size_t idx)
                        CHANGE);
 }
 
+// ============================================================
+// ISR ENTRY
+// ============================================================
+
 void IRAM_ATTR UltrasonicArduinoISRDriver::handleInterrupt(void *arg)
 {
     auto *ctx = static_cast<IsrContext *>(arg);
@@ -81,6 +100,10 @@ void IRAM_ATTR UltrasonicArduinoISRDriver::handleInterrupt(void *arg)
     if (ctx && ctx->driver)
         ctx->driver->onEdge(ctx->index);
 }
+
+// ============================================================
+// EDGE HANDLER
+// ============================================================
 
 void IRAM_ATTR UltrasonicArduinoISRDriver::onEdge(uint8_t idx)
 {
@@ -92,8 +115,8 @@ void IRAM_ATTR UltrasonicArduinoISRDriver::onEdge(uint8_t idx)
     if (!state.armed)
         return;
 
-    const uint32_t now = micros();
-    const bool levelHigh = digitalRead(configs[idx].echoPin) == HIGH;
+    const uint32_t now = micros(); // acceptable for now
+    const bool levelHigh = digitalRead(configs[idx].echoPin);
 
     if (levelHigh)
     {
@@ -106,6 +129,7 @@ void IRAM_ATTR UltrasonicArduinoISRDriver::onEdge(uint8_t idx)
         return;
 
     const uint32_t duration = now - state.risingEdgeUs;
+
     state.armed = false;
     state.highSeen = false;
 
@@ -118,6 +142,10 @@ void IRAM_ATTR UltrasonicArduinoISRDriver::onEdge(uint8_t idx)
     pushEventFromISR(idx, duration, false);
 }
 
+// ============================================================
+// PUSH EVENT (ISR SAFE)
+// ============================================================
+
 void IRAM_ATTR UltrasonicArduinoISRDriver::pushEventFromISR(
     uint8_t idx,
     uint32_t duration,
@@ -126,21 +154,19 @@ void IRAM_ATTR UltrasonicArduinoISRDriver::pushEventFromISR(
     UltrasonicEchoEvent evt{};
     evt.sensorId = static_cast<UltrasonicSensorId>(idx);
     evt.duration = duration;
-    evt.timestamp = micros();
+    evt.timestamp = micros(); // optional: can be removed for strict ISR safety
     evt.timeout = timeout;
 
-    bool hpTaskWoken = false;
-
-    if (!eventReceiver.pushFromISR(evt, &hpTaskWoken))
+    // 🚫 NO FreeRTOS concept here anymore
+    if (!eventReceiver.pushFromISR(evt))
     {
         recordDropFromISR(idx);
     }
-
-    if (hpTaskWoken)
-    {
-        portYIELD_FROM_ISR();
-    }
 }
+
+// ============================================================
+// DROP TRACKING
+// ============================================================
 
 void IRAM_ATTR UltrasonicArduinoISRDriver::recordDropFromISR(uint8_t idx)
 {
