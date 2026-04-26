@@ -4,19 +4,22 @@
 #include "IUltrasonicDriver.h"
 #include "UltrasonicTypes.h"
 #include "UltrasonicDriverContext.h"
-#if defined(ESP_PLATFORM)
-#include "freertos/FreeRTOS.h"
-#include "freertos/queue.h"
-#endif
 
-// Factory API
+/**
+ * Creates a fully initialized ultrasonic system.
+ *
+ * @param configs   Sensor configurations
+ * @param nativeHandle
+ *        Optional platform-specific handle.
+ *
+ *        Interpretation depends on platform:
+ *        - ESP32 (FreeRTOS): QueueHandle_t
+ *        - Arduino: nullptr (internal ring buffer)
+ *        - STM32: buffer/config pointer
+ *        - Linux: queue/context pointer
+ *
+ * @return UltrasonicDriverContext
+ */
 UltrasonicDriverContext createUltrasonicDriverContext(
     const std::vector<UltrasonicConfig> &configs,
-#if defined(ULTRASONIC_USE_MOCK)
-    QueueHandle_t queue
-#elif defined(ESP_PLATFORM)
-    QueueHandle_t queue
-#else
-    void *queue = nullptr // fallback for non-RTOS platforms
-#endif
-);
+    void *queue = nullptr);

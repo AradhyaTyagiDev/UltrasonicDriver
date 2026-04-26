@@ -4,17 +4,15 @@
 #include <queue>
 #include <stdint.h>
 
-#include "freertos/FreeRTOS.h"
-#include "freertos/queue.h"
-
 #include "IUltrasonicDriver.h"
+#include "IUltrasonicEventReceiver.h"
 #include "UltrasonicTypes.h"
 
 class UltrasonicMockDriver : public IUltrasonicDriver, public IUltrasonicDriverTestHook
 {
 public:
     UltrasonicMockDriver(const std::vector<UltrasonicConfig> &cfg,
-                         QueueHandle_t queue);
+                         IUltrasonicEventReceiver &receiver);
 
     IUltrasonicDriverTestHook *testHook() override
     {
@@ -51,7 +49,7 @@ private:
     };
 
     std::vector<UltrasonicConfig> configs;
-    QueueHandle_t echoQueue;
+    IUltrasonicEventReceiver &eventReceiver;
 
     uint32_t currentTimeMs = 0;
 

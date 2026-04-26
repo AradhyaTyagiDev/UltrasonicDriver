@@ -8,11 +8,9 @@
 // =============================
 UltrasonicMockDriver::UltrasonicMockDriver(
     const std::vector<UltrasonicConfig> &cfg,
-    QueueHandle_t queue)
-    : configs(cfg), echoQueue(queue)
+    IUltrasonicEventReceiver &receiver)
+    : configs(cfg), eventReceiver(receiver)
 {
-    assert(queue != nullptr);
-
     eventQueues.resize(configs.size());
     dropCounter.resize(configs.size(), 0);
 }
@@ -163,7 +161,7 @@ void UltrasonicMockDriver::pushEvent(const ScheduledEvent &e)
     evt.timestamp = currentTimeMs;
     evt.timeout = e.timeout;
 
-    if (xQueueSend(echoQueue, &evt, 0) != pdPASS)
+    if (!eventSink.push(evt))
     {
         size_t idx = toIndex(e.sensor);
 

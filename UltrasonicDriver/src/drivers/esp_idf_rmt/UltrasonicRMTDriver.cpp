@@ -18,11 +18,9 @@
 /// Create xQueueCreate(32, sizeof(UltrasonicEchoEvent)); and Pass to factory → driver
 UltrasonicRMTDriver::UltrasonicRMTDriver(
     const std::vector<UltrasonicConfig> &cfg,
-    QueueHandle_t queue)
-    : configs(cfg), echoQueue(queue)
+    IUltrasonicEventReceiver &receiver)
+    : configs(cfg), eventReceiver(receiver)
 {
-    assert(queue != nullptr);
-
     if (configs.empty() || configs.size() > 8)
     {
         printf("Invalid sensor count: %d\n", (int)configs.size());
@@ -164,17 +162,17 @@ bool IRAM_ATTR UltrasonicRMTDriver::onReceiveDone(
     evt.timestamp = xTaskGetTickCountFromISR();
     evt.timeout = false;
 
-    BaseType_t hpTaskWoken = pdFALSE;
+    bool hpTaskWoken = false;
 
     // 🔥 Push to global queue
     // ✔ ISR-safe API
-    if (xQueueSendFromISR(driver->echoQueue, &evt, &hpTaskWoken) != pdPASS)
+    if (!driver->eventReceiver.pushFromISR(evt))
     {
         __atomic_add_fetch(&driver->dropCounter[ch], 1, __ATOMIC_RELAXED);
         __atomic_add_fetch(&driver->totalDrops, 1, __ATOMIC_RELAXED);
     }
 
-    return hpTaskWoken == pdTRUE;
+    return hpTaskWoken;
 }
 
 // ===============Static Callback Definition==============

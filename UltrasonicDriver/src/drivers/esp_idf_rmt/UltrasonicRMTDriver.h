@@ -7,16 +7,16 @@
 #include "driver/rmt_types.h"
 
 #include "freertos/FreeRTOS.h"
-#include "freertos/queue.h"
 
 #include "IUltrasonicDriver.h"
+#include "IUltrasonicEventReceiver.h"
 #include "UltrasonicTypes.h"
 
 class UltrasonicRMTDriver : public IUltrasonicDriver
 {
 public:
     UltrasonicRMTDriver(const std::vector<UltrasonicConfig> &cfg,
-                        QueueHandle_t queue);
+                        IUltrasonicEventReceiver &receiver);
 
     // IUltrasonicDriver interface
     void begin() override;
@@ -30,7 +30,7 @@ public:
 private:
     // ================= CONFIG =================
     std::vector<UltrasonicConfig> configs;
-    QueueHandle_t echoQueue = nullptr;
+    IUltrasonicEventReceiver &eventReceiver;
 
     // ================= RUNTIME =================
     std::vector<rmt_channel_handle_t> channels;

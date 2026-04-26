@@ -4,10 +4,9 @@
 #include <vector>
 
 #include <Arduino.h>
-#include <freertos/FreeRTOS.h>
-#include <freertos/queue.h>
 
 #include "IUltrasonicDriver.h"
+#include "IUltrasonicEventReceiver.h"
 #include "UltrasonicTypes.h"
 
 #ifndef IRAM_ATTR
@@ -18,7 +17,7 @@ class UltrasonicArduinoISRDriver : public IUltrasonicDriver
 {
 public:
     UltrasonicArduinoISRDriver(const std::vector<UltrasonicConfig> &cfg,
-                               QueueHandle_t queue);
+                               IUltrasonicEventReceiver &receiver);
 
     void begin() override;
     void startReceive(UltrasonicSensorId sensor) override;
@@ -45,7 +44,7 @@ private:
     };
 
     std::vector<UltrasonicConfig> configs;
-    QueueHandle_t echoQueue = nullptr;
+    IUltrasonicEventReceiver &eventReceiver;
     std::vector<SensorState> states;
     std::vector<IsrContext> isrContexts;
     std::vector<uint32_t> dropCounter;

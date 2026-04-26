@@ -1,6 +1,5 @@
 #pragma once
 
-#include <freertos/FreeRTOS.h>
 #include "UltrasonicTypes.h"
 
 // FIX: forward declaration

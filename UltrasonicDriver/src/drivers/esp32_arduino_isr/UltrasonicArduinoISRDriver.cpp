@@ -6,10 +6,9 @@
 
 UltrasonicArduinoISRDriver::UltrasonicArduinoISRDriver(
     const std::vector<UltrasonicConfig> &cfg,
-    QueueHandle_t queue)
-    : configs(cfg), echoQueue(queue)
+    IUltrasonicEventReceiver &receiver)
+    : configs(cfg), eventReceiver(receiver)
 {
-    assert(echoQueue != nullptr);
     assert(!configs.empty() && configs.size() <= kMaxSensors);
 
     states.resize(configs.size());
@@ -130,14 +129,14 @@ void IRAM_ATTR UltrasonicArduinoISRDriver::pushEventFromISR(
     evt.timestamp = micros();
     evt.timeout = timeout;
 
-    BaseType_t hpTaskWoken = pdFALSE;
+    bool hpTaskWoken = false;
 
-    if (xQueueSendFromISR(echoQueue, &evt, &hpTaskWoken) != pdPASS)
+    if (!eventReceiver.pushFromISR(evt, &hpTaskWoken))
     {
         recordDropFromISR(idx);
     }
 
-    if (hpTaskWoken == pdTRUE)
+    if (hpTaskWoken)
     {
         portYIELD_FROM_ISR();
     }

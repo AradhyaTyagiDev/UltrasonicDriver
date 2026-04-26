@@ -1,59 +1,104 @@
-
 #include "UltrasonicDriverFactory.h"
+
+#include <utility>
+
+// ================= PLATFORM RECEIVERS =================
+
+#if defined(ULTRASONIC_DRIVER_ESP_IDF_RMT) || defined(ULTRASONIC_DRIVER_ESP32_ARDUINO_ISR)
+#include "FreeRTOSEventReceiver.h"
+#endif
+
+#if defined(ULTRASONIC_DRIVER_ARDUINO)
+#include "RingBufferEventReceiver.h"
+#endif
 
 // ================= DRIVER INCLUDES =================
 
-// 🔥 Order matters: ARDUINO first
 #if defined(ULTRASONIC_USE_MOCK)
 
-#include "drivers/mock/UltrasonicMockDriver.h"
+#include "mock/UltrasonicMockDriver.h"
 
-#elif defined(ARDUINO)
+#elif defined(ULTRASONIC_DRIVER_ESP32_ARDUINO_ISR)
 
-#include "drivers/arduino/UltrasonicArduinoISRDriver.h"
+#include "drivers/esp32_arduino_isr/UltrasonicArduinoISRDriver.h"
 
-#elif defined(ESP_PLATFORM)
+#elif defined(ULTRASONIC_DRIVER_ESP_IDF_RMT)
 
-#include "drivers/esp_idf/UltrasonicRMTDriver.h"
+#include "drivers/esp_idf_rmt/UltrasonicRMTDriver.h"
 
 #else
 #error "No supported platform for UltrasonicDriver"
 #endif
 
-// ================= FACTORY =================
-std::unique_ptr<IUltrasonicDriver> createUltrasonicDriver(
+// ============================================================
+// INTERNAL DRIVER FACTORY
+// ============================================================
+
+static std::unique_ptr<IUltrasonicDriver> createDriver(
     const std::vector<UltrasonicConfig> &configs,
-    QueueHandle_t queue)
+    IUltrasonicEventReceiver &receiver)
 {
 #if defined(ULTRASONIC_USE_MOCK)
 
-    return std::unique_ptr<IUltrasonicDriver>(
-        new UltrasonicMockDriver(configs, queue));
+    return std::make_unique<UltrasonicMockDriver>(configs, receiver);
 
-#elif defined(ARDUINO)
+#elif defined(ULTRASONIC_DRIVER_ESP32_ARDUINO_ISR)
 
-    // Arduino framework driver keeps the same queue/event contract as RMT.
-    return std::unique_ptr<IUltrasonicDriver>(
-        new UltrasonicArduinoISRDriver(configs, queue));
+    return std::make_unique<UltrasonicArduinoISRDriver>(configs, receiver);
 
-#elif defined(ESP_PLATFORM)
-    // ESP-IDF RMT driver
-    return std::unique_ptr<IUltrasonicDriver>(
-        new UltrasonicRMTDriver(configs, queue));
+#elif defined(ULTRASONIC_DRIVER_ESP_IDF_RMT)
+
+    return std::make_unique<UltrasonicRMTDriver>(configs, receiver);
 
 #else
 #error "No ultrasonic driver selected"
 #endif
 }
 
+// ============================================================
+// MAIN FACTORY (PUBLIC API)
+// ============================================================
 UltrasonicDriverContext createUltrasonicDriverContext(
     const std::vector<UltrasonicConfig> &configs,
-    QueueHandle_t queue)
+    void *nativeHandle)
 {
     UltrasonicDriverContext ctx;
 
-    ctx.driver = createUltrasonicDriver(configs, queue);
+    // ================= CREATE RECEIVER =================
+
+#if defined(ULTRASONIC_DRIVER_ESP_IDF_RMT) || defined(ULTRASONIC_DRIVER_ESP32_ARDUINO_ISR)
+
+    // Expect FreeRTOS queue
+    auto queue = static_cast<QueueHandle_t>(nativeHandle);
+
+    // Basic safety (optional but recommended)
+    if (queue == nullptr)
+    {
+        // You can assert or fallback
+        // For now: fail-fast
+        abort();
+    }
+
+    ctx.receiver = std::make_unique<FreeRTOSEventReceiver>(queue);
+
+#elif defined(ULTRASONIC_DRIVER_ARDUINO)
+
+    // No external handle needed
+    ctx.receiver = std::make_unique<RingBufferEventReceiver>();
+
+#else
+#error "No receiver implementation for this platform"
+#endif
+
+    // ================= CREATE DRIVER =================
+
+    ctx.driver = createDriver(configs, *ctx.receiver);
+
+    // ================= INIT =================
+
     ctx.driver->begin();
+
+    // ================= TEST HOOK =================
 
     ctx.test = ctx.driver->testHook();
 
