@@ -1,13 +1,9 @@
 
-#if defined(ESP_PLATFORM)
+
 #include <stdio.h>
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
-#include <inttypes.h>
-#else
-#include <Arduino.h>
-#endif
 
 #include "UltrasonicDriverFactory.h"
 #include "UltrasonicTypes.h"

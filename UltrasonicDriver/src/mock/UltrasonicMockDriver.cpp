@@ -161,7 +161,7 @@ void UltrasonicMockDriver::pushEvent(const ScheduledEvent &e)
     evt.timestamp = currentTimeMs;
     evt.timeout = e.timeout;
 
-    if (!eventSink.push(evt))
+    if (!eventReceiver.push(evt))
     {
         size_t idx = toIndex(e.sensor);
 

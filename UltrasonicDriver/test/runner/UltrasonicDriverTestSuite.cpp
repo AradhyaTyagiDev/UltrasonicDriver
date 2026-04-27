@@ -3,6 +3,12 @@
 #include <UltrasonicDriverFactory.h>
 #include <UltrasonicTypes.h>
 #include <UltrasonicDriverContext.h>
+#include <vector>
+#include <IUltrasonicEventReceiver.h>
+#include <IUltrasonicDriver.h>
+#include "FreeRTOS.h"
+#include "queue.h"
+#include "UltrasonicDriverTestSuite.h"
 
 class UltrasonicDriverTestSuite
 {

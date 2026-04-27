@@ -1,6 +1,7 @@
 #pragma once
 
-#include "freertos/FreeRTOS.h"
+// #include "freertos/FreeRTOS.h"
+#include <stdint.h>
 
 /// @brief define Inside UltrasonicManager or Pass as dependency (clean architecture): ❌ Global variables → hard to control
 struct UltrasonicTuning
