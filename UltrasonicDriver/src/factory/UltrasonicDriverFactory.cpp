@@ -1,4 +1,7 @@
-#include "UltrasonicDriverFactory.h"
+#pragma once
+
+#include <UltrasonicSensorTypes.h>
+#include "driver/UltrasonicDriverFactory.h"
 
 #include <memory>
 #include <utility>
@@ -6,7 +9,7 @@
 // ================= PLATFORM RECEIVERS =================
 
 #if defined(ULTRASONIC_DRIVER_ESP_IDF_RMT) || defined(ULTRASONIC_DRIVER_ESP32_ARDUINO_ISR)
-#include "FreeRTOSEventReceiver.h"
+#include "driver/FreeRTOSEventReceiver.h"
 #endif
 
 #if defined(ULTRASONIC_DRIVER_ARDUINO)

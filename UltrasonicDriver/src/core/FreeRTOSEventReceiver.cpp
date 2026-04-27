@@ -1,4 +1,7 @@
-#include "FreeRTOSEventReceiver.h"
+#include "driver/UltrasonicDriverTypes.h"
+#include "driver/FreeRTOSEventReceiver.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/queue.h"
 
 #include <assert.h>
 

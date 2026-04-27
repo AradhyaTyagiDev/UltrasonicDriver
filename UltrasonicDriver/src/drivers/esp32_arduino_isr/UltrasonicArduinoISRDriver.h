@@ -5,9 +5,9 @@
 
 #include <Arduino.h>
 
-#include "IUltrasonicDriver.h"
-#include "IUltrasonicEventReceiver.h"
-#include "UltrasonicDriverTypes.h"
+#include "driver/IUltrasonicDriver.h"
+#include "driver/IUltrasonicEventReceiver.h"
+#include "driver/UltrasonicDriverTypes.h"
 
 #ifndef IRAM_ATTR
 #define IRAM_ATTR

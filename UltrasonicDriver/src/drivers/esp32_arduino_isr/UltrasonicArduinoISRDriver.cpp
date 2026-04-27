@@ -1,7 +1,7 @@
 #include "UltrasonicArduinoISRDriver.h"
 
 #include <assert.h>
-#include "UltrasonicUtils.h"
+#include "driver/UltrasonicUtils.h"
 
 UltrasonicArduinoISRDriver::UltrasonicArduinoISRDriver(
     const std::vector<UltrasonicConfig> &cfg,

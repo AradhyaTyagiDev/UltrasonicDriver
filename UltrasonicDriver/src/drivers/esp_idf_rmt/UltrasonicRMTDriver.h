@@ -8,9 +8,9 @@
 
 #include "freertos/FreeRTOS.h"
 
-#include "IUltrasonicDriver.h"
-#include "IUltrasonicEventReceiver.h"
-#include "UltrasonicDriverTypes.h"
+#include "driver/IUltrasonicDriver.h"
+#include "driver/IUltrasonicEventReceiver.h"
+#include "driver/UltrasonicDriverTypes.h"
 
 class UltrasonicRMTDriver : public IUltrasonicDriver
 {

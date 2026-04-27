@@ -1,6 +1,7 @@
 #pragma once
 
 #include "UltrasonicDriverTypes.h"
+#include "UltrasonicSensorTypes.h"
 
 // FIX: forward declaration
 class IUltrasonicDriverTestHook;

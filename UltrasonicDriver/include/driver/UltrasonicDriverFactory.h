@@ -3,6 +3,7 @@
 #include <vector>
 #include "IUltrasonicDriver.h"
 #include "UltrasonicDriverTypes.h"
+#include "UltrasonicSensorTypes.h"
 #include "UltrasonicDriverContext.h"
 
 /**

@@ -3,7 +3,7 @@
 #pragma once
 
 #include <cstddef>
-#include "UltrasonicDriverTypes.h"
+#include "UltrasonicSensorTypes.h"
 
 inline size_t toIndex(UltrasonicSensorId s)
 {

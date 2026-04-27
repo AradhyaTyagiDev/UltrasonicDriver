@@ -5,9 +5,9 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
 
-#include "UltrasonicDriverFactory.h"
-#include "UltrasonicDriverTypes.h"
-#include "IUltrasonicDriver.h"
+#include "driver/UltrasonicDriverFactory.h"
+#include "driver/UltrasonicDriverTypes.h"
+#include "driver/IUltrasonicDriver.h"
 
 void systemInit();
 
