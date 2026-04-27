@@ -10,7 +10,7 @@
 
 #include "IUltrasonicDriver.h"
 #include "IUltrasonicEventReceiver.h"
-#include "UltrasonicTypes.h"
+#include "UltrasonicDriverTypes.h"
 
 class UltrasonicRMTDriver : public IUltrasonicDriver
 {

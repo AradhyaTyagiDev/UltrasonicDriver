@@ -2,7 +2,7 @@
 #include <memory>
 #include <vector>
 #include "IUltrasonicDriver.h"
-#include "UltrasonicTypes.h"
+#include "UltrasonicDriverTypes.h"
 #include "UltrasonicDriverContext.h"
 
 /**

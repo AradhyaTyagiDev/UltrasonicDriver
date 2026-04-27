@@ -1,14 +1,13 @@
 #include <assert.h>
 #include <stdlib.h> // for rand()
 #include <UltrasonicDriverFactory.h>
-#include <UltrasonicTypes.h>
+#include <UltrasonicDriverTypes.h>
 #include <UltrasonicDriverContext.h>
 #include <vector>
 #include <IUltrasonicEventReceiver.h>
 #include <IUltrasonicDriver.h>
-#include "FreeRTOS.h"
-#include "queue.h"
-#include "UltrasonicDriverTestSuite.h"
+#include <FreeRTOS.h>
+#include <queue.h>
 
 class UltrasonicDriverTestSuite
 {

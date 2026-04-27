@@ -7,7 +7,7 @@
 
 #include "IUltrasonicDriver.h"
 #include "IUltrasonicEventReceiver.h"
-#include "UltrasonicTypes.h"
+#include "UltrasonicDriverTypes.h"
 
 #ifndef IRAM_ATTR
 #define IRAM_ATTR

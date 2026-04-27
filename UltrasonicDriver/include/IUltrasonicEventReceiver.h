@@ -1,6 +1,6 @@
 #pragma once
 
-#include "UltrasonicTypes.h"
+#include "UltrasonicDriverTypes.h"
 
 // OS independence; ISR safety abstraction
 class IUltrasonicEventReceiver

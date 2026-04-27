@@ -6,7 +6,7 @@
 
 #include "IUltrasonicDriver.h"
 #include "IUltrasonicEventReceiver.h"
-#include "UltrasonicTypes.h"
+#include "UltrasonicDriverTypes.h"
 
 class UltrasonicMockDriver : public IUltrasonicDriver, public IUltrasonicDriverTestHook
 {

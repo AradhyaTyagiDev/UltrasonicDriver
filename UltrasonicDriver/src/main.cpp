@@ -6,7 +6,7 @@
 #include "freertos/queue.h"
 
 #include "UltrasonicDriverFactory.h"
-#include "UltrasonicTypes.h"
+#include "UltrasonicDriverTypes.h"
 #include "IUltrasonicDriver.h"
 
 void systemInit();
